@@ -10,13 +10,25 @@ class CategoriesPage extends StatefulWidget {
 
 class _CategoriesPageState extends State<CategoriesPage> {
   final jokesCategories = JokesCategories();
+  late Future<List<String>> futureCategories;
+
+  @override
+  void initState() {
+    futureCategories = jokesCategories.getCategories();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder<List<String>>(
-        future: jokesCategories.getCategories(),
+        future: futureCategories,
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text("requisition error."),
+            );
+          }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -25,13 +37,20 @@ class _CategoriesPageState extends State<CategoriesPage> {
             final data = snapshot.data;
             return ListView.separated(
                 itemBuilder: (context, index) => ListTile(
-                      title: Text(data[index]),
+                      title: Text(data![index]),
                     ),
                 separatorBuilder: (_, index) => const Divider(),
-                itemCount: data!.length);
+                itemCount: data?.length ?? 0);
           } else {
-            return const Text("Opps there is an error...");
+            return const Center(
+              child: Text("Opps there is an error..."),
+            );
           }
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {});
         },
       ),
     );
