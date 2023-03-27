@@ -51,13 +51,18 @@ class _CategoriesPageState extends State<CategoriesPage> {
             final data = snapshot.data;
             return ListView.separated(
                 itemBuilder: (context, index) => ListTile(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                JokePage(categoria: data[index]),
-                          ),
-                        );
+                      onTap: () async {
+                        final joke = await jokesCategories
+                            .getJokesByCategory(data[index]);
+
+                        if (context.mounted) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  JokePage(joke: joke, categoria: data[index]),
+                            ),
+                          );
+                        }
                       },
                       title: Text(
                         data![index].capitalize(),
